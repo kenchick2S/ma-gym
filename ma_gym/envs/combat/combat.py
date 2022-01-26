@@ -116,7 +116,10 @@ class Combat(gym.Env):
         for agent_i in range(self.n_agents):
             # team id , unique id, location, health, cooldown
             #_agent_i_obs = np.zeros((6, 5, 5))
-            _agent_i_obs = np.zeros((self.n_agents + self._n_opponents, 6))
+            #_agent_i_obs = np.zeros((self.n_agents + self._n_opponents, 6))
+            ally_i_obs = np.zeros((self.n_agents-1,5))
+            opp_i_obs = np.zeros((self._n_opponents,6))
+            own_i_obs = np.zeros((1,1))
             hp = self.agent_health[agent_i]
 
             # If agent is alive
@@ -127,29 +130,44 @@ class Combat(gym.Env):
                 # _agent_i_obs += [1 if self._agent_cool else 0]  # flag if agent is cooling down
 
                 pos = self.agent_pos[agent_i]
-                for agent_id in range(self.n_agents):
+                
+                # ally feature
+                agent_list = [i for i in range(self.n_agents) if i != agent_i]
+                
+                for i, agent_id in enumerate(agent_list):
+                    
                     pos_agent = self.agent_pos[agent_id]
                     if self.is_visible(pos, pos_agent):
-                        _agent_i_obs[agent_id][0] = 1
-                        _agent_i_obs[agent_id][1] = agent_id
-                        _agent_i_obs[agent_id][2] = self.agent_health[agent_id] 
-                        _agent_i_obs[agent_id][3] = self._agent_cool[agent_id] 
-                        _agent_i_obs[agent_id][3] = 1 if _agent_i_obs[agent_id][3] else -1  # cool/uncool
+                        ally_i_obs[i][0] = 1
+                        ally_i_obs[i][1] = self.agent_health[agent_id] 
+                        ally_i_obs[i][2] = self._agent_cool[agent_id] 
+                        ally_i_obs[i][2] = 1 if ally_i_obs[i][2] else -1  # cool/uncool
                         #distance = abs(pos_agent[0] - pos[0]) + abs(pos_agent[1]-pos[1])
-                        _agent_i_obs[agent_id][4] = abs(pos_agent[0] - pos[0]) / 5  # x-coordinate
-                        _agent_i_obs[agent_id][5] = abs(pos_agent[0] - pos[0]) / 5  # y-coordinate
-               
+                        ally_i_obs[i][3] = abs(pos_agent[0] - pos[0]) / 5  # x-coordinate
+                        ally_i_obs[i][4] = abs(pos_agent[0] - pos[0]) / 5  # y-coordinate
+                # opponent feature
                 for opp_id in range(self._n_opponents):
                     pos_opp = self.opp_pos[opp_id]
                     if self.is_visible(pos, pos_opp):
-                        _agent_i_obs[opp_id+self.n_agents][0] = -1
-                        _agent_i_obs[opp_id+self.n_agents][1] = opp_id
-                        _agent_i_obs[opp_id+self.n_agents][2] = self.opp_health[opp_id] 
-                        _agent_i_obs[opp_id+self.n_agents][3] = self._opp_cool[opp_id] 
-                        _agent_i_obs[opp_id+self.n_agents][3] = 1 if _agent_i_obs[opp_id+self.n_agents][3] else -1  # cool/uncool
+                        opp_i_obs[opp_id][0] = -1
+                        opp_i_obs[opp_id][1] = self.is_fireable(self._agent_cool[agent_i], pos, pos_opp)
+                        opp_i_obs[opp_id][2] = self.opp_health[opp_id] 
+                        opp_i_obs[opp_id][3] = self._opp_cool[opp_id] 
+                        opp_i_obs[opp_id][3] = 1 if opp_i_obs[opp_id][3] else -1  # cool/uncool
                         #distance = abs(pos_opp[0] - pos[0]) + abs(pos_opp[1]-pos[1])
-                        _agent_i_obs[opp_id+self.n_agents][4] = abs(pos_opp[0] - pos[0]) / 5  # x-coordinate
-                        _agent_i_obs[opp_id+self.n_agents][5] = abs(pos_opp[1]-pos[1]) / 5  # y-coordinate
+                        opp_i_obs[opp_id][4] = abs(pos_opp[0] - pos[0]) / 5  # x-coordinate
+                        opp_i_obs[opp_id][5] = abs(pos_opp[1]-pos[1]) / 5  # y-coordinate
+                        #_agent_i_obs[opp_id][6] = opp_id
+                # own feature       
+                own_i_obs[0][0] = hp 
+                
+                _agent_i_obs = np.concatenate(
+                    (
+                ally_i_obs.flatten(),
+                opp_i_obs.flatten(),
+                own_i_obs.flatten(),
+                    )
+                ).tolist()
                 '''for row in range(0, 5):
                     for col in range(0, 5):
                         if self.is_valid([row + (pos[0] - 2), col + (pos[1] - 2)]) and (
@@ -166,7 +184,7 @@ class Combat(gym.Env):
                             _agent_i_obs[4][row][col] = entity_position[0] / self._grid_shape[0]  # x-coordinate
                             _agent_i_obs[5][row][col] = entity_position[1] / self._grid_shape[1]  # y-coordinate'''
 
-            _agent_i_obs = _agent_i_obs.flatten().tolist()
+            #_agent_i_obs = _agent_i_obs.flatten().tolist()
             _obs.append(_agent_i_obs)
         return _obs
 
@@ -190,6 +208,34 @@ class Combat(gym.Env):
                                     pos[0] / self._grid_shape[0], pos[1] / self._grid_shape[1]], dtype=np.float)
                 state[opp_i + self.n_agents] = feature
         return state.flatten()
+    
+    def get_avail_agent_actions(self, agent_id):
+        agent_avail_action = np.zeros(5+self._n_opponents, dtype=int)
+        pos = self.agent_pos[agent_id]
+        if self.agent_health[agent_id] > 0:
+            if self._is_cell_vacant(self, [pos[0],pos[1]+1]):
+                agent_avail_action[0] = 1
+            if self._is_cell_vacant(self, [pos[0]-1,pos[1]]):
+                agent_avail_action[1] = 1
+            if self._is_cell_vacant(self, [pos[0],pos[1]-1]):
+                agent_avail_action[2] = 1
+            if self._is_cell_vacant(self, [pos[0]+1,pos[1]]):
+                agent_avail_action[3] = 1
+        for opp_id in range(self._n_opponents):
+            pos_opp = self.opp_pos[opp_id]
+            if self.is_fireable(self._agent_cool[agent_id], pos, pos_opp):
+                agent_avail_action[5+opp_id] = 1
+        else:
+            agent_avail_action[4] = 1
+            
+        return agent_avail_action.tolist()
+            
+    def get_avail_actions(self):
+        avail_actions = []
+        for agent_id in range(self.n_agents):
+            avail_agent = self.get_avail_agent_actions(agent_id)
+            avail_actions.append(avail_agent)
+        return avail_actions
 
     def get_state_size(self):
         return (self.n_agents + self._n_opponents) * 6
