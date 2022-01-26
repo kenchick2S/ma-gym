@@ -213,13 +213,13 @@ class Combat(gym.Env):
         agent_avail_action = np.zeros(5+self._n_opponents, dtype=int)
         pos = self.agent_pos[agent_id]
         if self.agent_health[agent_id] > 0:
-            if self._is_cell_vacant(self, [pos[0],pos[1]+1]):
+            if self._is_cell_vacant([pos[0],pos[1]+1]):
                 agent_avail_action[0] = 1
-            if self._is_cell_vacant(self, [pos[0]-1,pos[1]]):
+            if self._is_cell_vacant([pos[0]-1,pos[1]]):
                 agent_avail_action[1] = 1
-            if self._is_cell_vacant(self, [pos[0],pos[1]-1]):
+            if self._is_cell_vacant([pos[0],pos[1]-1]):
                 agent_avail_action[2] = 1
-            if self._is_cell_vacant(self, [pos[0]+1,pos[1]]):
+            if self._is_cell_vacant([pos[0]+1,pos[1]]):
                 agent_avail_action[3] = 1
         for opp_id in range(self._n_opponents):
             pos_opp = self.opp_pos[opp_id]
