@@ -161,13 +161,6 @@ class Combat(gym.Env):
                 # own feature       
                 own_i_obs[0][0] = hp 
                 
-                _agent_i_obs = np.concatenate(
-                    (
-                ally_i_obs.flatten(),
-                opp_i_obs.flatten(),
-                own_i_obs.flatten(),
-                    )
-                ).tolist()
                 '''for row in range(0, 5):
                     for col in range(0, 5):
                         if self.is_valid([row + (pos[0] - 2), col + (pos[1] - 2)]) and (
@@ -185,6 +178,13 @@ class Combat(gym.Env):
                             _agent_i_obs[5][row][col] = entity_position[1] / self._grid_shape[1]  # y-coordinate'''
 
             #_agent_i_obs = _agent_i_obs.flatten().tolist()
+            _agent_i_obs = np.concatenate(
+                    (
+                ally_i_obs.flatten(),
+                opp_i_obs.flatten(),
+                own_i_obs.flatten(),
+                    )
+                ).tolist()
             _obs.append(_agent_i_obs)
         return _obs
 
