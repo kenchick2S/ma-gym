@@ -139,7 +139,7 @@ class Combat(gym.Env):
                         _agent_i_obs[agent_id][4] = pos_agent[0] / self._grid_shape[0]  # x-coordinate
                         _agent_i_obs[agent_id][5] = pos_agent[1] / self._grid_shape[1]  # y-coordinate
                
-                for opp_id in range(self.n_opponents):
+                for opp_id in range(self._n_opponents):
                     pos_opp = self.opp_pos[opp_id]
                     if self.is_visible(pos, pos_opp):
                         _agent_i_obs[opp_id+self.n_agents][0] = 1
@@ -147,7 +147,7 @@ class Combat(gym.Env):
                         _agent_i_obs[opp_id+self.n_agents][2] = self.opp_health[opp_id] 
                         _agent_i_obs[opp_id+self.n_agents][3] = self._opp_cool[opp_id] 
                         _agent_i_obs[opp_id+self.n_agents][3] = 1 if _agent_i_obs[opp_id+self.n_agents][3] else -1  # cool/uncool
-                        #distance = abs(pos_agent[0] - pos[0]) + abs(pos_agent[1]-pos[1])
+                        #distance = abs(pos_opp[0] - pos[0]) + abs(pos_opp[1]-pos[1])
                         _agent_i_obs[opp_id+self.n_agents][4] = pos_opp[0] / self._grid_shape[0]  # x-coordinate
                         _agent_i_obs[opp_id+self.n_agents][5] = pos_opp[1] / self._grid_shape[1]  # y-coordinate
                 '''for row in range(0, 5):
