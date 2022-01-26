@@ -44,7 +44,7 @@ class Combat(gym.Env):
     """
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, grid_shape=(15, 15), n_agents=5, n_opponents=5, init_health=3, full_observable=False,
+    def __init__(self, grid_shape=(15, 15), n_agents=3, n_opponents=3, init_health=3, full_observable=False,
                  step_cost=0, max_steps=100, step_cool=1):
         self._grid_shape = grid_shape
         self.n_agents = n_agents
