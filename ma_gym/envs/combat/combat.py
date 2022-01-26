@@ -136,8 +136,8 @@ class Combat(gym.Env):
                         _agent_i_obs[agent_id][3] = self._agent_cool[agent_id] 
                         _agent_i_obs[agent_id][3] = 1 if _agent_i_obs[agent_id][3] else -1  # cool/uncool
                         #distance = abs(pos_agent[0] - pos[0]) + abs(pos_agent[1]-pos[1])
-                        _agent_i_obs[agent_id][4] = pos_agent[0] / self._grid_shape[0]  # x-coordinate
-                        _agent_i_obs[agent_id][5] = pos_agent[1] / self._grid_shape[1]  # y-coordinate
+                        _agent_i_obs[agent_id][4] = abs(pos_agent[0] - pos[0]) / 5  # x-coordinate
+                        _agent_i_obs[agent_id][5] = abs(pos_agent[0] - pos[0]) / 5  # y-coordinate
                
                 for opp_id in range(self._n_opponents):
                     pos_opp = self.opp_pos[opp_id]
@@ -148,8 +148,8 @@ class Combat(gym.Env):
                         _agent_i_obs[opp_id+self.n_agents][3] = self._opp_cool[opp_id] 
                         _agent_i_obs[opp_id+self.n_agents][3] = 1 if _agent_i_obs[opp_id+self.n_agents][3] else -1  # cool/uncool
                         #distance = abs(pos_opp[0] - pos[0]) + abs(pos_opp[1]-pos[1])
-                        _agent_i_obs[opp_id+self.n_agents][4] = pos_opp[0] / self._grid_shape[0]  # x-coordinate
-                        _agent_i_obs[opp_id+self.n_agents][5] = pos_opp[1] / self._grid_shape[1]  # y-coordinate
+                        _agent_i_obs[opp_id+self.n_agents][4] = abs(pos_opp[0] - pos[0]) / 5  # x-coordinate
+                        _agent_i_obs[opp_id+self.n_agents][5] = abs(pos_opp[1]-pos[1]) / 5  # y-coordinate
                 '''for row in range(0, 5):
                     for col in range(0, 5):
                         if self.is_valid([row + (pos[0] - 2), col + (pos[1] - 2)]) and (
