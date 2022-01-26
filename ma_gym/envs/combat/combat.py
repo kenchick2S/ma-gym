@@ -142,7 +142,7 @@ class Combat(gym.Env):
                 for opp_id in range(self._n_opponents):
                     pos_opp = self.opp_pos[opp_id]
                     if self.is_visible(pos, pos_opp):
-                        _agent_i_obs[opp_id+self.n_agents][0] = 1
+                        _agent_i_obs[opp_id+self.n_agents][0] = -1
                         _agent_i_obs[opp_id+self.n_agents][1] = opp_id
                         _agent_i_obs[opp_id+self.n_agents][2] = self.opp_health[opp_id] 
                         _agent_i_obs[opp_id+self.n_agents][3] = self._opp_cool[opp_id] 
