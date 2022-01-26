@@ -115,7 +115,8 @@ class Combat(gym.Env):
         _obs = []
         for agent_i in range(self.n_agents):
             # team id , unique id, location, health, cooldown
-            _agent_i_obs = np.zeros((6, 5, 5))
+            #_agent_i_obs = np.zeros((6, 5, 5))
+            _agent_i_obs = np.zeros((self.n_agents + self._n_opponents, 6))
             hp = self.agent_health[agent_i]
 
             # If agent is alive
@@ -126,7 +127,30 @@ class Combat(gym.Env):
                 # _agent_i_obs += [1 if self._agent_cool else 0]  # flag if agent is cooling down
 
                 pos = self.agent_pos[agent_i]
-                for row in range(0, 5):
+                for agent_id in range(self.n_agents):
+                    pos_agent = self.agent_pos[agent_id]
+                    if is_visible(pos, pos_agent):
+                        _agent_i_obs[agent_id][0] = 1
+                        _agent_i_obs[agent_id][1] = agent_id
+                        _agent_i_obs[agent_id][2] = self.agent_health[agent_id] 
+                        _agent_i_obs[agent_id][3] = self._agent_cool[agent_id] 
+                        _agent_i_obs[agent_id][3] = 1 if _agent_i_obs[agent_id][3] else -1  # cool/uncool
+                        #distance = abs(pos_agent[0] - pos[0]) + abs(pos_agent[1]-pos[1])
+                        _agent_i_obs[agent_id][4] = pos_agent[0] / self._grid_shape[0]  # x-coordinate
+                        _agent_i_obs[agent_id][5] = pos_agent[1] / self._grid_shape[1]  # y-coordinate
+               
+                for opp_id in range(self.n_opponents):
+                    pos_opp = self.opp_pos[opp_id]
+                    if is_visible(pos, pos_opp):
+                        _agent_i_obs[opp_id+self.n_agents][0] = 1
+                        _agent_i_obs[opp_id+self.n_agents][1] = opp_id
+                        _agent_i_obs[opp_id+self.n_agents][2] = self.opp_health[opp_id] 
+                        _agent_i_obs[opp_id+self.n_agents][3] = self._opp_cool[opp_id] 
+                        _agent_i_obs[opp_id+self.n_agents][3] = 1 if _agent_i_obs[opp_id+self.n_agents][3] else -1  # cool/uncool
+                        #distance = abs(pos_agent[0] - pos[0]) + abs(pos_agent[1]-pos[1])
+                        _agent_i_obs[opp_id+self.n_agents][4] = pos_opp[0] / self._grid_shape[0]  # x-coordinate
+                        _agent_i_obs[opp_id+self.n_agents][5] = pos_opp[1] / self._grid_shape[1]  # y-coordinate
+                '''for row in range(0, 5):
                     for col in range(0, 5):
                         if self.is_valid([row + (pos[0] - 2), col + (pos[1] - 2)]) and (
                                 PRE_IDS['empty'] not in self._full_obs[row + (pos[0] - 2)][col + (pos[1] - 2)]):
@@ -140,7 +164,7 @@ class Combat(gym.Env):
                             _agent_i_obs[3][row][col] = 1 if _agent_i_obs[3][row][col] else -1  # cool/uncool
                             entity_position = self.agent_pos[_id] if _type == 1 else self.opp_pos[_id]
                             _agent_i_obs[4][row][col] = entity_position[0] / self._grid_shape[0]  # x-coordinate
-                            _agent_i_obs[5][row][col] = entity_position[1] / self._grid_shape[1]  # y-coordinate
+                            _agent_i_obs[5][row][col] = entity_position[1] / self._grid_shape[1]  # y-coordinate'''
 
             _agent_i_obs = _agent_i_obs.flatten().tolist()
             _obs.append(_agent_i_obs)
