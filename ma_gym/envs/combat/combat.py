@@ -482,8 +482,8 @@ class Combat(gym.Env):
         for opp_i in range(self._n_opponents):
             action = None
             for _, agent_i in sorted(opp_agent_distance[opp_i]):
-                #if agent_i in visible_agents:
-                if self.is_visible(self.opp_pos[opp_i], self.agent_pos[agent_i]):
+                if agent_i in visible_agents:
+                #if self.is_visible(self.opp_pos[opp_i], self.agent_pos[agent_i]):
                     if self.is_fireable(self._opp_cool[opp_i], self.opp_pos[opp_i], self.agent_pos[agent_i]):
                         action = agent_i + 5
                     elif self.opp_health[opp_i] > 0:
