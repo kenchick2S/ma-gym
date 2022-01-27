@@ -519,7 +519,7 @@ class Combat(gym.Env):
                             and opp_health[target_opp] > 0:
                         # Fire
                         opp_health[target_opp] -= 1
-                        rewards[agent_i] += 1
+                        rewards[agent_i] += 2
                         
                         # Update agent cooling down
                         self._agent_cool[agent_i] = False
