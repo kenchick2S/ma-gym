@@ -119,7 +119,7 @@ class Combat(gym.Env):
             #_agent_i_obs = np.zeros((self.n_agents + self._n_opponents, 6))
             ally_i_obs = np.zeros((self.n_agents-1,5))
             opp_i_obs = np.zeros((self._n_opponents,6))
-            own_i_obs = np.zeros((1,1))
+            own_i_obs = np.zeros(5)
             hp = self.agent_health[agent_i]
 
             # If agent is alive
@@ -159,7 +159,15 @@ class Combat(gym.Env):
                         opp_i_obs[opp_id][5] = abs(pos_opp[1]-pos[1]) / 5  # y-coordinate
                         #_agent_i_obs[opp_id][6] = opp_id
                 # own feature       
-                own_i_obs[0][0] = hp 
+                own_i_obs[0] = hp
+                if self._is_cell_vacant([pos[0],pos[1]+1]):
+                    own_i_obs[1] = 1
+                if self._is_cell_vacant([pos[0]-1,pos[1]]):
+                    own_i_obs[2] = 1
+                if self._is_cell_vacant([pos[0],pos[1]-1]):
+                    own_i_obs[3] = 1
+                if self._is_cell_vacant([pos[0]+1,pos[1]]):
+                    own_i_obs[4] = 1
                 
                 '''for row in range(0, 5):
                     for col in range(0, 5):
@@ -512,7 +520,7 @@ class Combat(gym.Env):
                         # Fire
                         opp_health[target_opp] -= 1
                         rewards[agent_i] += 1
-
+                        
                         # Update agent cooling down
                         self._agent_cool[agent_i] = False
                         self._agent_cool_step[agent_i] = self._step_cool
