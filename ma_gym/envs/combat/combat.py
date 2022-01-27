@@ -467,7 +467,7 @@ class Combat(gym.Env):
         :return:
         """
 
-        #visible_agents = set([])
+        visible_agents = set([])
         opp_agent_distance = {_: [] for _ in range(self._n_opponents)}
 
         for opp_i, opp_pos in self.opp_pos.items():
