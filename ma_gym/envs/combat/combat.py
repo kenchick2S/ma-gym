@@ -467,7 +467,7 @@ class Combat(gym.Env):
         :return:
         """
 
-        visible_agents = set([])
+        #visible_agents = set([])
         opp_agent_distance = {_: [] for _ in range(self._n_opponents)}
 
         for opp_i, opp_pos in self.opp_pos.items():
@@ -482,7 +482,8 @@ class Combat(gym.Env):
         for opp_i in range(self._n_opponents):
             action = None
             for _, agent_i in sorted(opp_agent_distance[opp_i]):
-                if agent_i in visible_agents:
+                #if agent_i in visible_agents:
+                if self.is_visible(self.opp_pos[opp_i], self.agent_pos[agent_i]):
                     if self.is_fireable(self._opp_cool[opp_i], self.opp_pos[opp_i], self.agent_pos[agent_i]):
                         action = agent_i + 5
                     elif self.opp_health[opp_i] > 0:
@@ -535,7 +536,7 @@ class Combat(gym.Env):
                 if self._agent_cool_step[agent_i] == 0 and not self._agent_cool[agent_i]:
                     self._agent_cool[agent_i] = True
 
-        opp_action = self.opps_action
+        opp_action = self.opps_action()
         for opp_i, action in enumerate(opp_action):
             if self.opp_health[opp_i] > 0:
                 target_agent = action - 5
@@ -544,7 +545,7 @@ class Combat(gym.Env):
                             and agent_health[target_agent] > 0:
                         # Fire
                         agent_health[target_agent] -= 1
-                        rewards[target_agent] -= 2
+                        rewards[target_agent] -= 1
 
                         # Update opp cooling down
                         self._opp_cool[opp_i] = False
